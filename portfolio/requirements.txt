@@ -5,9 +5,10 @@
 fastapi==0.115.3
 uvicorn[standard]==0.31.1
 python-multipart==0.0.18
+starlette==0.41.2
 
 # Template and static file serving
-jinja2==3.1.5
+jinja2==3.1.6
 
 # Security and validation
 python-jose[cryptography]==3.4.0
@@ -15,6 +16,7 @@ passlib[bcrypt]==1.7.4
 bcrypt==4.2.0
 pydantic==2.10.2
 pydantic-settings==2.6.1
+ecdsa==0.19.1
 
 # HTTP client and utilities
 httpx==0.28.0
@@ -23,6 +25,9 @@ email-validator==2.2.0
 
 # Rate limiting and middleware
 slowapi==0.1.9
+
+
+
 
 
 # Database (temporary - to be removed)

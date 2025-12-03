@@ -1,8 +1,24 @@
 /* 2. Background Animation */
 body {
-    background: radial-gradient(circle at 50% 50%, #60aaff 0%, #3d84ff 100%);
-    background-attachment: fixed;
+    background: url('/static/images/waterfall.png');
     background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+}
+
+/* Frutiger Aero Overlay Gradient */
+body::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(180deg, rgba(0, 209, 255, 0.2), rgba(0, 59, 135, 0.4));
+    backdrop-filter: blur(3px);
+    z-index: -3;
+    pointer-events: none;
 }
 
 /* Dew Overlay */

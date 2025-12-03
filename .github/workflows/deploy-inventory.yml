@@ -1,17 +1,22 @@
-name: Deploy Portfolio
+name: Deploy Inventory Manager
 
 on:
   push:
     branches: [ main ]
+    paths:
+      - 'inventory_manager/**'
 
 env:
   DEPLOYMENT_ID: ${{ github.run_id }}
   REGISTRY: ghcr.io
-  IMAGE_NAME: ${{ github.repository }}
+  IMAGE_NAME: ${{ github.repository }}-inventory-manager
 
 jobs:
   test-and-scan:
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./inventory_manager
     steps:
       - uses: actions/checkout@v3
       
@@ -29,14 +34,11 @@ jobs:
       - name: Run Tests
         run: pytest
         
-      - name: Security Scan (Dependencies)
+      - name: Security Scan
         run: |
           pip-audit -r requirements.txt
           safety check -r requirements.txt
-          
-      # Secret Scanning is handled by GitHub Advanced Security automatically
-      # but we can fail if we find anything obvious in the diff
-      
+
   build:
     needs: test-and-scan
     runs-on: ubuntu-latest
@@ -57,7 +59,7 @@ jobs:
       - name: Build and push Docker image
         uses: docker/build-push-action@v4
         with:
-          context: .
+          context: ./inventory_manager
           push: true
           tags: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.DEPLOYMENT_ID }}
 
@@ -66,6 +68,18 @@ jobs:
     runs-on: ubuntu-latest
     
     steps:
+      - uses: actions/checkout@v3
+      
+      - name: Copy Compose File to Server
+        uses: appleboy/scp-action@master
+        with:
+          host: ${{ secrets.SERVER_HOST }}
+          username: ${{ secrets.SERVER_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          source: "inventory_manager/docker-compose.yml"
+          target: "/srv/inventory_manager"
+          strip_components: 1
+
       - name: Deploy to Server
         uses: appleboy/ssh-action@master
         with:
@@ -74,18 +88,20 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
             # 1. Setup Environment
-            mkdir -p /srv/env/portfolio
-            echo "${{ secrets.PORTFOLIO_ENV }}" > /srv/env/portfolio/.env
-            chmod 600 /srv/env/portfolio/.env
+            mkdir -p /srv/env/inventory_manager
+            echo "${{ secrets.INVENTORY_ENV }}" > /srv/env/inventory_manager/.env
+            chmod 600 /srv/env/inventory_manager/.env
             
-            cd /srv/portfolio
+            cd /srv/inventory_manager
             
             # 2. Pull New Image
-            docker pull ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.DEPLOYMENT_ID }}
+            export IMAGE_TAG=${{ env.DEPLOYMENT_ID }}
+            export IMAGE_NAME=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+            
+            docker pull $IMAGE_NAME:$IMAGE_TAG
             
             # 3. Blue/Green Deployment Logic
-            # Determine current color (if any)
-            CURRENT_COLOR=$(docker ps --filter "name=portfolio-web" --format "{{.Names}}" | grep -oE "blue|green" || echo "none")
+            CURRENT_COLOR=$(docker ps --filter "name=inventory_manager-app" --format "{{.Names}}" | grep -oE "blue|green" || echo "none")
             
             if [ "$CURRENT_COLOR" == "blue" ]; then
               NEW_COLOR="green"
@@ -98,16 +114,16 @@ jobs:
             echo "Deploying to $NEW_COLOR (Current: $CURRENT_COLOR)"
             
             # Start New Container
-            docker compose -f docker-compose.yml -p portfolio-$NEW_COLOR up -d
+            IMAGE_TAG=$IMAGE_TAG docker compose -f docker-compose.yml -p inventory_manager-$NEW_COLOR up -d
             
             # 4. Readiness Gate
             echo "Waiting for readiness check..."
             ATTEMPTS=0
-            MAX_ATTEMPTS=12 # 2 minutes (10s interval)
+            MAX_ATTEMPTS=12
             SUCCESS_COUNT=0
             
             while [ $ATTEMPTS -lt $MAX_ATTEMPTS ]; do
-              HTTP_CODE=$(docker exec portfolio-$NEW_COLOR-web-1 curl -s -o /dev/null -w "%{http_code}" http://localhost:8001/api/health)
+              HTTP_CODE=$(docker exec inventory_manager-$NEW_COLOR-app-1 curl -s -o /dev/null -w "%{http_code}" http://localhost:8010/health)
               
               if [ "$HTTP_CODE" == "200" ]; then
                 SUCCESS_COUNT=$((SUCCESS_COUNT+1))
@@ -127,22 +143,15 @@ jobs:
             
             if [ $SUCCESS_COUNT -lt 3 ]; then
               echo "Readiness check failed! Rolling back..."
-              docker compose -p portfolio-$NEW_COLOR down
+              docker compose -p inventory_manager-$NEW_COLOR down
               exit 1
             fi
             
-            # 5. Switch Traffic (Update Caddy Upstream)
-            # In a real dynamic setup, we might update Caddy config via API.
-            # For Docker Compose with internal DNS, we rely on the network alias.
-            # Since both blue and green share 'portfolio.internal', Caddy load balances.
-            # To drain, we stop the old one.
-            
-            # 6. Drain Old Container
+            # 5. Drain Old Container
             if [ "$CURRENT_COLOR" != "none" ]; then
               echo "Draining $OLD_COLOR..."
-              # Wait for in-flight requests
               sleep 30
-              docker compose -p portfolio-$OLD_COLOR down
+              docker compose -p inventory_manager-$OLD_COLOR down
             fi
             
             echo "Deployment Complete: $NEW_COLOR is live."

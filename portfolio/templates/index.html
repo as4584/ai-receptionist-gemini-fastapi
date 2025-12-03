@@ -42,8 +42,9 @@
     </nav>
 
     <!-- Hero Section -->
-    <section id="home" class="hero">
+    <section id="home" class="hero aero-section">
         <div class="glass-panel text-center">
+            <div class="gloss-overlay"></div>
             <h1 style="margin-bottom: 1rem;">Lex Santiago</h1>
             <h2 style="font-size: 1.5rem; margin-bottom: 2rem; color: var(--color-ocean-mid);">
                 Engineer / Creator
@@ -72,8 +73,9 @@
     </section>
 
     <!-- Portfolio Section -->
-    <section id="portfolio">
+    <section id="portfolio" class="aero-section">
         <div class="glass-panel">
+            <div class="gloss-overlay"></div>
             <h2 class="text-center" style="margin-bottom: 0.5rem; color: var(--color-ocean-mid);">Projects</h2>
             <p class="text-center" style="margin-bottom: 3rem; color: var(--color-navy-text);">"How can I make this
                 easier?"</p>
@@ -81,6 +83,7 @@
             <div class="projects-grid">
                 {% for project in projects %}
                 <div class="glass-card">
+                    <div class="gloss-overlay"></div>
                     <img src="{{ project.image_url }}" alt="{{ project.title }}" class="project-image"
                         onerror="this.src='/static/images/placeholder-project.svg'">
                     <h3 style="font-size: 1.25rem; margin-bottom: 0.5rem;">{{ project.title }}</h3>
@@ -105,12 +108,14 @@
     </section>
 
     <!-- Testimonials Section -->
-    <section id="testimonials">
+    <section id="testimonials" class="aero-section">
         <div class="glass-panel">
+            <div class="gloss-overlay"></div>
             <h2 class="text-center" style="margin-bottom: 3rem; color: var(--color-ocean-mid);">What Clients Say</h2>
             <div class="projects-grid">
                 {% for testimonial in testimonials %}
                 <div class="glass-card">
+                    <div class="gloss-overlay"></div>
                     <div style="color: #ffd700; margin-bottom: 1rem;">★★★★★</div>
                     <p style="font-style: italic; margin-bottom: 1.5rem; flex-grow: 1;">"{{ testimonial.text }}"</p>
                     <div>
@@ -125,8 +130,9 @@
     </section>
 
     <!-- About Section -->
-    <section id="about">
+    <section id="about" class="aero-section">
         <div class="glass-panel">
+            <div class="gloss-overlay"></div>
             <h2 class="text-center" style="margin-bottom: 2rem; color: var(--color-ocean-mid);">Hey, I'm Lex</h2>
             <div style="max-width: 700px; margin: 0 auto; text-align: center;">
                 <p style="margin-bottom: 1.5rem;">
@@ -147,22 +153,27 @@
                 <h3 class="text-center" style="margin-bottom: 2rem;">Expertise</h3>
                 <div style="display: flex; flex-wrap: wrap; justify-content: center; gap: 1.5rem;">
                     <div class="glass-card" style="padding: 1rem; min-width: 120px; align-items: center;">
+                        <div class="gloss-overlay"></div>
                         <span style="font-size: 2rem; margin-bottom: 0.5rem;">🚀</span>
                         <span style="font-weight: 600;">FastAPI</span>
                     </div>
                     <div class="glass-card" style="padding: 1rem; min-width: 120px; align-items: center;">
+                        <div class="gloss-overlay"></div>
                         <span style="font-size: 2rem; margin-bottom: 0.5rem;">🐍</span>
                         <span style="font-weight: 600;">Python</span>
                     </div>
                     <div class="glass-card" style="padding: 1rem; min-width: 120px; align-items: center;">
+                        <div class="gloss-overlay"></div>
                         <span style="font-size: 2rem; margin-bottom: 0.5rem;">🤖</span>
                         <span style="font-weight: 600;">OpenAI</span>
                     </div>
                     <div class="glass-card" style="padding: 1rem; min-width: 120px; align-items: center;">
+                        <div class="gloss-overlay"></div>
                         <span style="font-size: 2rem; margin-bottom: 0.5rem;">📞</span>
                         <span style="font-weight: 600;">Twilio</span>
                     </div>
                     <div class="glass-card" style="padding: 1rem; min-width: 120px; align-items: center;">
+                        <div class="gloss-overlay"></div>
                         <span style="font-size: 2rem; margin-bottom: 0.5rem;">🐳</span>
                         <span style="font-weight: 600;">Docker</span>
                     </div>
@@ -172,8 +183,9 @@
     </section>
 
     <!-- Contact Section -->
-    <section id="contact">
+    <section id="contact" class="aero-section">
         <div class="glass-panel">
+            <div class="gloss-overlay"></div>
             <h2 class="text-center" style="margin-bottom: 1rem; color: var(--color-ocean-mid);">Let's Talk</h2>
             <p class="text-center" style="margin-bottom: 3rem;">I'd love to hear what you're building.</p>
 

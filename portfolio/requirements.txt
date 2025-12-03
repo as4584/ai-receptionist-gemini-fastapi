@@ -4,13 +4,13 @@
 # Core web framework
 fastapi==0.115.3
 uvicorn[standard]==0.31.1
-python-multipart==0.0.12
+python-multipart==0.0.18
 
 # Template and static file serving
-jinja2==3.1.4
+jinja2==3.1.5
 
 # Security and validation
-python-jose[cryptography]==3.3.0
+python-jose[cryptography]==3.4.0
 passlib[bcrypt]==1.7.4
 bcrypt==4.2.0
 pydantic==2.10.2
@@ -23,6 +23,7 @@ email-validator==2.2.0
 
 # Rate limiting and middleware
 slowapi==0.1.9
+
 
 # Database (temporary - to be removed)
 asyncpg==0.29.0

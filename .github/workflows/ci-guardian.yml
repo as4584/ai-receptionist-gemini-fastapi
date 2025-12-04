@@ -16,7 +16,7 @@ jobs:
       
       - name: Enforce Monorepo Structure
         run: |
-          if [ ! -d "portfolio" ] || [ ! -d "inventory_manager" ]; then
+          if [ ! -d "portfolio" ] || [ ! -d "inventory_manager" ] || [ ! -d "ai_receptionist" ]; then
             echo "CRITICAL: Monorepo structure violated!"
             exit 1
           fi

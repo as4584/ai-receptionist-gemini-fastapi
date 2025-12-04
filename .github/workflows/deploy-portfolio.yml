@@ -84,7 +84,7 @@ jobs:
           username: ${{ secrets.SERVER_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           source: "portfolio/docker-compose.yml"
-          target: "/srv/portfolio"
+          target: "portfolio"
           strip_components: 1
 
       - name: Deploy to Server
@@ -95,16 +95,13 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
             # 1. Setup Environment
-            mkdir -p /srv/env/portfolio
-            echo "${{ secrets.PORTFOLIO_ENV }}" > /srv/env/portfolio/.env
-            chmod 600 /srv/env/portfolio/.env
+            mkdir -p ~/portfolio
+            echo "${{ secrets.PORTFOLIO_ENV }}" > ~/portfolio/.env
+            chmod 600 ~/portfolio/.env
             
-            cd /srv/portfolio
+            cd ~/portfolio
             
             # 2. Pull New Image
-            # We need to ensure docker-compose uses the new image tag.
-            # Since docker-compose.yml usually has 'image: ...:latest' or fixed, 
-            # we might need to override it or export variable.
             export IMAGE_TAG=${{ env.DEPLOYMENT_ID }}
             export IMAGE_NAME=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
             

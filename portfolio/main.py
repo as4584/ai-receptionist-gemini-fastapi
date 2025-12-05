@@ -159,7 +159,7 @@ ACCESS_TOKEN_EXPIRE_MINUTES = int(os.getenv("SESSION_EXPIRE_MINUTES", "30"))
 ALLOWED_ORIGINS = os.getenv("ALLOWED_ORIGINS", "*").split(",")
 TRUSTED_HOSTS = os.getenv(
     "TRUSTED_HOSTS",
-    "localhost,127.0.0.1,104.236.100.245,104.236.100.245:8000,testserver",
+    "localhost,127.0.0.1,104.236.100.245,104.236.100.245:8000,testserver,lexmakesit.com,www.lexmakesit.com",
 ).split(",")
 PRODUCTION = os.getenv("PRODUCTION", "false").lower() == "true"
 
@@ -168,14 +168,14 @@ setup_logging()
 logger = logging.getLogger(__name__)
 
 # Rate limiting configuration
-RATE_LIMIT_PER_MINUTE = os.getenv("RATE_LIMIT_PER_MINUTE", "60")
-RATE_LIMIT_BURST = int(os.getenv("RATE_LIMIT_BURST", "10"))
+RATE_LIMIT_PER_MINUTE = os.getenv("RATE_LIMIT_PER_MINUTE", "60") or "60"
+RATE_LIMIT_BURST = int(os.getenv("RATE_LIMIT_BURST") or "10")
 
 # Email configuration
 SMTP_HOST = os.getenv("SMTP_HOST", "smtp.gmail.com")
-SMTP_PORT = int(os.getenv("SMTP_PORT", "587"))
-SMTP_USER = os.getenv("SMTP_USER", "")
-SMTP_PASSWORD = os.getenv("SMTP_PASSWORD", "")
+SMTP_PORT = int(os.getenv("SMTP_PORT") or "587")
+SMTP_USER = os.getenv("SMTP_USER") or ""
+SMTP_PASSWORD = os.getenv("SMTP_PASSWORD") or ""
 SMTP_FROM_EMAIL = os.getenv("SMTP_FROM_EMAIL", SMTP_USER)
 SMTP_FROM_NAME = os.getenv("SMTP_FROM_NAME", "Portfolio Contact")
 

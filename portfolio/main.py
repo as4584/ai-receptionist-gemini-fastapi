@@ -456,7 +456,7 @@ PROJECTS = [
             "Docker",
         ],
         image_url="/static/images/DonXlogo.jpg",
-        case_study_url="http://localhost:8010",
+        case_study_url="http://don-era.lexmakesit.com",
         impact=(
             "Turned a 4-hour weekly reconciliation task into a real-time automated system. "
             "No more manual counting. Instant stock visibility across all locations."

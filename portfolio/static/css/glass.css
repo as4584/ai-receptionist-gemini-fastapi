@@ -40,7 +40,8 @@
     border-bottom: 1px solid rgba(255, 255, 255, 0.2);
     pointer-events: none;
     z-index: 2;
-    border-radius: inherit;
+    /* border-radius: inherit; Removed to rely on parent overflow:hidden for perfect corner fit */
+    border-radius: 0;
 }
 
 /* Section Spacing */

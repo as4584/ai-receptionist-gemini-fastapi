@@ -13,21 +13,22 @@
         href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Orbitron:wght@700;900&display=swap"
         rel="stylesheet">
 
-    <!-- CSS -->
+    <!-- CSS System -->
     <link rel="stylesheet" href="/static/css/global.css">
-    <link rel="stylesheet" href="/static/css/background.css">
     <link rel="stylesheet" href="/static/css/glass.css">
     <link rel="stylesheet" href="/static/css/buttons.css">
     <link rel="stylesheet" href="/static/css/components.css">
 
-    <!-- JS -->
-    <script src="/static/js/aero.js" defer></script>
+    <!-- Dual-Reality Layers -->
+    <link rel="stylesheet" href="/static/css/reality-mobile.css">
+    <link rel="stylesheet" href="/static/css/reality-desktop.css">
+
+    <!-- JS Bootstrap (Reality Detection) -->
+    <script src="/static/js/detect-reality.js" defer></script>
+    <!-- Redundant line removal in next step if checking manually, but here I write the file so it's clean -->
 </head>
 
 <body>
-    <!-- Background Bubbles Container (Populated by JS) -->
-    <div class="aero-bubbles"></div>
-
     <!-- Navigation -->
     <nav class="navbar">
         <div class="nav-container">
@@ -60,8 +61,10 @@
             </div>
 
             <div style="margin-top: 3rem; display: flex; gap: 1.5rem; justify-content: center;">
-                <a href="https://github.com/as4584" target="_blank" style="font-size: 1.5rem;">💻</a>
-                <a href="https://www.instagram.com/httpslovelex/" target="_blank" style="font-size: 1.5rem;">📸</a>
+                <a href="https://github.com/as4584" target="_blank"
+                    style="font-size: 1.5rem; text-decoration: none;">💻</a>
+                <a href="https://www.instagram.com/httpslovelex/" target="_blank"
+                    style="font-size: 1.5rem; text-decoration: none;">📸</a>
             </div>
 
             <div style="margin-top: 1.5rem; font-size: 0.9rem; color: var(--color-ocean-mid);">

@@ -15,4 +15,4 @@
 ## Visual Regression Log
 | Date | Commit | Status | Diff Score | Action |
 |------|--------|--------|------------|--------|
-| -    | -      | -      | -          | -      |
+| 2025-12-04 | HEAD | FIXED | High | Unified AI Receptionist page with Frutiger Aero theme |

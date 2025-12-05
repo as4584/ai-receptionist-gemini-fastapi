@@ -8,12 +8,14 @@ services:
       lex_net:
         aliases:
           - inventory.internal
+      antigravity_bundle_antigravity_net:
+        aliases:
+          - inventory_manager
     restart: always
     # Internal port only
-    expose:
-      - "8010"
+    ports:
+      - "8010:8010"
     env_file:
-      - /srv/env/global.env
       - .env
     environment:
       - FLASK_ENV=production
@@ -36,4 +38,6 @@ services:
 
 networks:
   lex_net:
+    external: true
+  antigravity_bundle_antigravity_net:
     external: true

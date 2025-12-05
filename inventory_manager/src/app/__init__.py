@@ -20,6 +20,13 @@ def create_app() -> Flask:
 	with contextlib.suppress(Exception):
 		app.jinja_env.auto_reload = True
 
+	# Security Headers (OWASP A05:2021)
+	try:
+		from flask_talisman import Talisman
+		Talisman(app, force_https=False, content_security_policy=None)
+	except ImportError:
+		pass
+
 	@app.route('/')
 	def index():
 		# Production inventory metrics

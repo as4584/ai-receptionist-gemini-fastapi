@@ -41,4 +41,4 @@ USER app
 EXPOSE 8010
 
 # Use gunicorn with proper workers and proxy headers
-CMD ["poetry", "run", "gunicorn", "-b", "0.0.0.0:8010", "-w", "2", "--proxy-headers", "--chdir", "/app/scripts", "run_local:app"]
+CMD ["poetry", "run", "gunicorn", "-b", "0.0.0.0:8010", "-w", "2", "--access-logfile", "-", "--chdir", "/app/scripts", "run_local:app"]

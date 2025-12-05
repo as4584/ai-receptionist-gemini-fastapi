@@ -83,7 +83,7 @@ jobs:
           host: ${{ secrets.SERVER_HOST }}
           username: ${{ secrets.SERVER_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
-          source: "portfolio/docker-compose.yml"
+          source: "portfolio/docker-compose.yml,portfolio/init.sql"
           target: "portfolio"
           strip_components: 1
 

@@ -1,0 +1,3 @@
+receptionist.lexmakesit.com {
+    reverse_proxy receptionist_app:8010
+}

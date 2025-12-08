@@ -1,0 +1,150 @@
+version: '3.8'
+
+networks:
+  antigravity_net:
+    driver: bridge
+
+volumes:
+  portfolio_db_data:
+  ai_receptionist_db_data:
+  ai_receptionist_qdrant_data:
+  caddy_data:
+  caddy_config:
+
+
+services:
+  # --- CORE INFRASTRUCTURE ---
+  caddy:
+    image: caddy:2
+    container_name: antigravity_caddy
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile
+      - caddy_data:/data
+      - caddy_config:/config
+    networks:
+      - antigravity_net
+    depends_on:
+      - portfolio_web
+      - inventory_manager
+      - ai_receptionist_app
+
+  # --- PORTFOLIO ---
+  portfolio_db:
+    image: postgres:15-alpine
+    container_name: portfolio_db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${PORTFOLIO_DB_USER}
+      POSTGRES_PASSWORD: ${PORTFOLIO_DB_PASSWORD}
+      POSTGRES_DB: ${PORTFOLIO_DB_NAME}
+    volumes:
+      - portfolio_db_data:/var/lib/postgresql/data
+    networks:
+      - antigravity_net
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U ${PORTFOLIO_DB_USER} -d ${PORTFOLIO_DB_NAME}" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  portfolio_web:
+    build: ./portfolio
+    container_name: portfolio_web
+    restart: unless-stopped
+    environment:
+      - DATABASE_URL=postgresql://${PORTFOLIO_DB_USER}:${PORTFOLIO_DB_PASSWORD}@portfolio_db:5432/${PORTFOLIO_DB_NAME}
+      - SECRET_KEY=${SECRET_KEY}
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+    networks:
+      - antigravity_net
+    depends_on:
+      portfolio_db:
+        condition: service_healthy
+    expose:
+      - "8001"
+
+  # --- INVENTORY MANAGER ---
+  inventory_manager:
+    build: ./inventory_manager
+    container_name: inventory_manager_app
+    restart: unless-stopped
+    environment:
+      - FLASK_ENV=${FLASK_ENV}
+      - PORT=${INVENTORY_PORT}
+    networks:
+      - antigravity_net
+    expose:
+      - "8010"
+
+  # --- AI RECEPTIONIST ---
+  ai_receptionist_db:
+    image: postgres:15
+    container_name: ai_receptionist_db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: receptionist
+    volumes:
+      - ai_receptionist_db_data:/var/lib/postgresql/data
+    networks:
+      - antigravity_net
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U postgres" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  ai_receptionist_redis:
+    image: redis:7
+    container_name: ai_receptionist_redis
+    restart: unless-stopped
+    networks:
+      - antigravity_net
+
+  ai_receptionist_qdrant:
+    image: qdrant/qdrant:latest
+    container_name: ai_receptionist_qdrant
+    restart: unless-stopped
+    volumes:
+      - ai_receptionist_qdrant_data:/qdrant/storage
+    networks:
+      - antigravity_net
+    expose:
+      - "6333"
+
+  ai_receptionist_app:
+    build: ./ai_receptionist
+    container_name: ai_receptionist_app
+    restart: unless-stopped
+    environment:
+      - DATABASE_URL=postgresql://postgres:password@ai_receptionist_db:5432/receptionist
+      - REDIS_URL=redis://ai_receptionist_redis:6379/0
+      - QDRANT_URL=http://ai_receptionist_qdrant:6333
+      - GEMINI_API_KEY=${GEMINI_API_KEY}
+      - TWILIO_ACCOUNT_SID=${TWILIO_ACCOUNT_SID}
+      - TWILIO_AUTH_TOKEN=${TWILIO_AUTH_TOKEN}
+      - ELEVENLABS_API_KEY=${ELEVENLABS_API_KEY}
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+    networks:
+      - antigravity_net
+    depends_on:
+      ai_receptionist_db:
+        condition: service_healthy
+    expose:
+      - "8010"
+
+  # --- SELF HEALING AGENT ---
+  antigravity_agent:
+    build: ./antigravity/agent
+    container_name: antigravity_agent
+    restart: unless-stopped
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ./antigravity/logs:/app/logs
+    networks:
+      - antigravity_net

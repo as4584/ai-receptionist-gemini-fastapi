@@ -1,0 +1,31 @@
+version: '3.8'
+
+services:
+  receptionist_app:
+    build: .
+    container_name: receptionist_app
+    restart: always
+    env_file:
+      - .env
+    ports:
+      - "8020:8010"
+    volumes:
+      - ./logs:/app/logs
+
+  caddy:
+    image: caddy:2
+    container_name: receptionist_caddy
+    restart: always
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile
+      - caddy_data:/data
+      - caddy_config:/config
+    depends_on:
+      - receptionist_app
+
+volumes:
+  caddy_data:
+  caddy_config:

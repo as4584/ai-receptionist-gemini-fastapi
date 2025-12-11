@@ -13,3 +13,7 @@ don-era.lexmakesit.com {
 receptionist.lexmakesit.com {
     reverse_proxy ai_receptionist_app:8010
 }
+
+dashboard.lexmakesit.com {
+    reverse_proxy antigravity_dashboard:8005
+}

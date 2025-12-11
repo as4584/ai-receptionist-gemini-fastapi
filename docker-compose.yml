@@ -149,3 +149,14 @@ services:
       - ./:/app/project
     networks:
       - antigravity_net
+
+  antigravity_dashboard:
+    build: ./antigravity/dashboard
+    container_name: antigravity_dashboard
+    restart: unless-stopped
+    volumes:
+      - ./antigravity/logs:/app/logs:ro
+    networks:
+      - antigravity_net
+    expose:
+      - "8005"

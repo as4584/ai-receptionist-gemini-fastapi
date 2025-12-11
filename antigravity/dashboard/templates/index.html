@@ -1,0 +1,215 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Antigravity System Dashboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-dark: #09090b;
+            --card-bg: #18181b;
+            --text-main: #fafafa;
+            --text-muted: #a1a1aa;
+            --accent: #8b5cf6;
+            --success: #10b981;
+            --danger: #ef4444;
+            --warning: #f59e0b;
+        }
+
+        body {
+            font-family: 'Outfit', sans-serif;
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+            margin: 0;
+            padding: 40px 20px;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        header {
+            margin-bottom: 60px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #fff 0%, #a1a1aa 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin: 0;
+        }
+
+        .status-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 24px;
+            margin-bottom: 60px;
+        }
+
+        .card {
+            background: var(--card-bg);
+            border: 1px solid #27272a;
+            border-radius: 16px;
+            padding: 24px;
+            transition: transform 0.2s, border-color 0.2s;
+        }
+
+        .card:hover {
+            transform: translateY(-2px);
+            border-color: #3f3f46;
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+
+        .card-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--text-muted);
+        }
+
+        .status-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background-color: var(--text-muted);
+            box-shadow: 0 0 10px rgba(255, 255, 255, 0.1);
+        }
+
+        .status-healthy {
+            background-color: var(--success);
+            box-shadow: 0 0 10px rgba(16, 185, 129, 0.4);
+        }
+
+        .status-unhealthy {
+            background-color: var(--danger);
+            box-shadow: 0 0 10px rgba(239, 68, 68, 0.4);
+        }
+        
+        .status-text {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        .detail-text {
+            font-size: 0.875rem;
+            color: var(--text-muted);
+            line-height: 1.4;
+        }
+
+        .section-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 24px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .actions-list {
+            background: var(--card-bg);
+            border: 1px solid #27272a;
+            border-radius: 16px;
+            overflow: hidden;
+        }
+
+        .action-item {
+            padding: 16px 24px;
+            border-bottom: 1px solid #27272a;
+            display: flex;
+            gap: 20px;
+            align-items: center;
+        }
+
+        .action-item:last-child {
+            border-bottom: none;
+        }
+
+        .action-time {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            font-family: monospace;
+            min-width: 150px;
+        }
+
+        .action-msg {
+            font-weight: 500;
+        }
+        
+        .refresh-btn {
+            background: #27272a;
+            border: none;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-family: inherit;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        
+        .refresh-btn:hover {
+            background: #3f3f46;
+        }
+
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>System Status</h1>
+            <button class="refresh-btn" onclick="window.location.reload()">Refresh</button>
+        </header>
+
+        <section>
+            <div class="status-grid">
+                {% for name, info in services.items() %}
+                <div class="card">
+                    <div class="card-header">
+                        <span class="card-title">{{ name }}</span>
+                        <div class="status-dot {% if info.status == 'Healthy' %}status-healthy{% elif info.status == 'Unhealthy' %}status-unhealthy{% endif %}"></div>
+                    </div>
+                    <div class="status-text">{{ info.status }}</div>
+                    <div class="detail-text">{{ info.details if info.details else 'No data available' }}</div>
+                    <div class="detail-text" style="margin-top: 8px; font-size: 0.75rem;">Last checked: {{ info.last_check }}</div>
+                </div>
+                {% endfor %}
+            </div>
+        </section>
+
+        <section>
+            <div class="section-title">
+                <span>Self-Healing Operations</span>
+            </div>
+            
+            {% if actions %}
+            <div class="actions-list">
+                {% for action in actions %}
+                <div class="action-item">
+                    <div class="action-time">{{ action.timestamp }}</div>
+                    <div class="action-msg">{{ action.message }}</div>
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <div class="card" style="text-align: center; color: var(--text-muted);">
+                No automated recovery actions taken recently. System stable.
+            </div>
+            {% endif %}
+        </section>
+    </div>
+</body>
+</html>

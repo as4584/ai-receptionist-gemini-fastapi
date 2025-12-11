@@ -5,6 +5,10 @@ WORKDIR /app
 # Install dependencies
 # docker: Python Docker SDK
 # requests: For HTTP health checks
+# Install dependencies
+# docker: Python Docker SDK
+# requests: For HTTP health checks
+RUN apt-get update && apt-get install -y docker.io docker-compose curl && rm -rf /var/lib/apt/lists/*
 RUN pip install --no-cache-dir docker requests
 
 # Create logs directory

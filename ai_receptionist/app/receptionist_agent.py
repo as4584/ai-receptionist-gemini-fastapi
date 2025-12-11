@@ -48,6 +48,20 @@ class ReceptionistAgent:
         """Connect to OpenAI Realtime API or switch to Mock Mode."""
         if self.mock_mode:
             app_logger.info("Starting in MOCK MODE (Config)")
+            # Queue Mock Greeting
+            try:
+                pcm_data = base64.b64decode(MOCK_AUDIO_ACK)
+                mulaw_data = audioop.lin2ulaw(pcm_data, 2)
+                mulaw_b64 = base64.b64encode(mulaw_data).decode('utf-8')
+                
+                await self.mock_queue.put({
+                    "type": "response.audio.delta",
+                    "delta": mulaw_b64,
+                    "delta_pcm": MOCK_AUDIO_ACK
+                })
+            except Exception as e:
+                app_logger.error(f"Failed to generate mock greeting: {e}")
+                
             return True
 
         try:
@@ -58,7 +72,7 @@ class ReceptionistAgent:
             self.ws = await websockets.connect(self.url, extra_headers=headers)
             app_logger.info("Connected to OpenAI Realtime API")
             
-            await self.initialize_session()
+            # await self.initialize_session() # Moved to twilio_handler to ensure listener is active
             return True
         except Exception as e:
             app_logger.error(f"Failed to connect to OpenAI: {e}. Switching to MOCK MODE.")
@@ -232,7 +246,31 @@ class ReceptionistAgent:
                 continue
 
             try:
-                msg = await self.ws.recv()
+                app_logger.info("Waiting for WS message...")
+                try:
+                    # Initial timeout 5s, subsequent could be longer? 
+                    # Actually realtime API sends keepalives? No.
+                    # But we expect greeting immediately.
+                    msg = await asyncio.wait_for(self.ws.recv(), timeout=5.0)
+                except asyncio.TimeoutError:
+                    if not self.mock_mode:
+                        app_logger.warning("OpenAI Realtime API timed out (5s). Switching to MOCK MODE.")
+                        self.mock_mode = True
+                        try:
+                            pcm_data = base64.b64decode(MOCK_AUDIO_ACK)
+                            mulaw_data = audioop.lin2ulaw(pcm_data, 2)
+                            mulaw_b64 = base64.b64encode(mulaw_data).decode('utf-8')
+                            
+                            await self.mock_queue.put({
+                                "type": "response.audio.delta",
+                                "delta": mulaw_b64,
+                                "delta_pcm": MOCK_AUDIO_ACK
+                            })
+                        except Exception as e:
+                            app_logger.error(f"Failed to queue mock greeting: {e}")
+                    continue
+
+                app_logger.info(f"Raw WS msg: {msg[:50]}...")
                 event = json.loads(msg)
                 
                 if event["type"] == "response.audio.delta":
@@ -261,6 +299,10 @@ class ReceptionistAgent:
                 elif event["type"] == "error":
                     app_logger.error(f"OpenAI Error: {event}")
                     
+                elif event["type"] == "response.done":
+                    app_logger.info(f"Response Done. Status: {event.get('response', {}).get('status')}")
+                    app_logger.info(f"Response Details: {event}")
+                
             except websockets.exceptions.ConnectionClosed as e:
                 app_logger.warning(f"WebSocket closed: {e}. Switching to Mock Mode.")
                 self.mock_mode = True

@@ -141,10 +141,11 @@ services:
   # --- SELF HEALING AGENT ---
   antigravity_agent:
     build: ./antigravity/agent
-    container_name: antigravity_agent
+    container_name: antigravity_agent_v2
     restart: unless-stopped
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
       - ./antigravity/logs:/app/logs
+      - ./:/app/project
     networks:
       - antigravity_net

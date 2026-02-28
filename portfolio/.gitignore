@@ -49,3 +49,29 @@ secrets/
 docker-data/
 
 .env.bak
+
+# Deploy scripts — KEEP PRIVATE
+deploy.sh
+deploy-nginx.sh
+server_setup.sh
+setup.sh
+setup-github-secrets.sh
+security_hardening.sh
+security_final.sh
+final_cleanup.sh
+fix_vulnerabilities.sh
+health-check.sh
+test-actions.sh
+test-local.sh
+validate_workflow.sh
+demo.sh
+
+# Security scan outputs
+bandit-report.json
+security_scan.json
+audit_report.md
+server.err
+
+# Preview/temp artifacts
+*_preview.md
+golden_*.txt
